@@ -22,15 +22,15 @@ namespace Server.Controllers
 
         private T GetService<T>() where T : class => (T)HttpContext.RequestServices.GetService(typeof(T));
 
-        protected bool IsWorkSheetExist(string sheetname)
+        protected bool IsSheetExist(string sheetname)
             => SheetsService.ISheetExist(GoogleSheetsApi.SpreadSheetId, sheetname);
 
         protected int? GetSheetId(string sheetname) 
             => SheetsService.GetSheetId(GoogleSheetsApi.SpreadSheetId, sheetname);
 
-        protected T CheckWorkSheetExist<T>(string sheetname, Func<T> func, string description = "")
+        protected T CheckSheetExist<T>(string sheetname, Func<T> func, string description = "")
         {
-            if (!IsWorkSheetExist(sheetname))
+            if (!IsSheetExist(sheetname))
             {
                 throw new RESTfulException(HttpStatusCode.NotFound, string.IsNullOrEmpty(description) ? $"Can't find the {sheetname}" : description);
             }

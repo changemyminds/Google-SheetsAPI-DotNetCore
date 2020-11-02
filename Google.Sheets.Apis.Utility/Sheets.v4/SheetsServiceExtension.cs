@@ -122,9 +122,7 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
             => service.GetSheet(spreadsheetId, sheetName).Properties.SheetId;
         #endregion
 
-        #region --- Cell Range ---
-        public static AppendValuesResponse AppendRowLine(this SheetsService service, string spreadsheetId, SheetRange sheetRange, Action<SpreadsheetsResource.ValuesResource.AppendRequest> onRequest, params object[] rowValues)
-            => service.AppendRowLine(spreadsheetId, sheetRange.ToRange(), onRequest, rowValues);
+        #region --- Range ---
 
         public static AppendValuesResponse AppendRowLine(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.AppendRequest> onRequest, params object[] rowValues)
         {
@@ -133,24 +131,8 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
                 rowValues.ToList()
             };
 
-            return service.AppendMultiLine(spreadsheetId, range, onRequest, values);
+            return service.AppendRange(spreadsheetId, range, onRequest, values);
         }
-
-        public static UpdateValuesResponse UpdateRowLine(this SheetsService service, string spreadsheetId, SheetRange sheetRange, Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest, params object[] rowValues)
-            => service.UpdateRowLine(spreadsheetId, sheetRange.ToRange(), onRequest, rowValues);
-
-        public static UpdateValuesResponse UpdateRowLine(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest, params object[] rowValues)
-        {
-            var values = new List<IList<object>>
-            {
-                rowValues.ToList()
-            };
-
-            return service.UpdateMultiLine(spreadsheetId, range, values, onRequest);
-        }
-
-        public static AppendValuesResponse AppendColumnLine(this SheetsService service, string spreadsheetId, SheetRange sheetRange, Action<SpreadsheetsResource.ValuesResource.AppendRequest> onRequest, params object[] columnValues)
-            => service.AppendColumnLine(spreadsheetId, sheetRange.ToRange(), onRequest, columnValues);
 
         public static AppendValuesResponse AppendColumnLine(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.AppendRequest> onRequest, params object[] columnValues)
         {
@@ -161,45 +143,10 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
             var values = new List<IList<object>>();
             values.AddRange(columList.ToList());
 
-            return service.AppendMultiLine(spreadsheetId, range, onRequest, values);
+            return service.AppendRange(spreadsheetId, range, onRequest, values);
         }
 
-        public static UpdateValuesResponse UpdateColumnLine(this SheetsService service, string spreadsheetId, SheetRange sheetRange, Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest, params object[] columnValues)
-           => service.UpdateColumnLine(spreadsheetId, sheetRange.ToRange(), onRequest, columnValues);
-
-        public static UpdateValuesResponse UpdateColumnLine(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest, params object[] columnValues)
-        {
-            // convert columnValues to columList
-            var columList = columnValues.Select(v => new List<object> { v });
-
-            // Add columList to values and input to valueRange
-            var values = new List<IList<object>>();
-            values.AddRange(columList.ToList());
-
-            return service.UpdateMultiLine(spreadsheetId, range, values, onRequest);
-        }
-
-        /// <summary>
-        /// 批次更新數值
-        /// </summary>
-        public static BatchUpdateValuesResponse BatchUpdateValues(this SheetsService service, string spreadsheetId, SheetOption.ValueInputOption option, List<ValueRange> valueRanges)
-        {
-            var request = new BatchUpdateValuesRequest
-            {
-                ValueInputOption = option.ToString(),
-                Data = valueRanges
-            };
-
-            return service.BatchUpdateValues(spreadsheetId, request);
-        }
-
-        /// <summary>
-        /// 批次更新數值
-        /// </summary>
-        public static BatchUpdateValuesResponse BatchUpdateValues(this SheetsService service, string spreadsheetId, BatchUpdateValuesRequest request)
-            => service.Spreadsheets.Values.BatchUpdate(request, spreadsheetId).Execute();
-
-        public static AppendValuesResponse AppendMultiLine(this SheetsService service,
+        public static AppendValuesResponse AppendRange(this SheetsService service,
             string spreadsheetId,
             string range,
             Action<SpreadsheetsResource.ValuesResource.AppendRequest> onRequest,
@@ -216,11 +163,33 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
             return appendRequest.Execute();
         }
 
-        public static UpdateValuesResponse UpdateMultiLine(this SheetsService service,
+        public static UpdateValuesResponse UpdateRowLine(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest, params object[] rowValues)
+        {
+            var values = new List<IList<object>>
+            {
+                rowValues.ToList()
+            };
+
+            return service.UpdateRange(spreadsheetId, range, onRequest, values);
+        }
+
+        public static UpdateValuesResponse UpdateColumnLine(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest, params object[] columnValues)
+        {
+            // convert columnValues to columList
+            var columList = columnValues.Select(v => new List<object> { v });
+
+            // Add columList to values and input to valueRange
+            var values = new List<IList<object>>();
+            values.AddRange(columList.ToList());
+
+            return service.UpdateRange(spreadsheetId, range, onRequest, values);
+        }
+
+        public static UpdateValuesResponse UpdateRange(this SheetsService service,
            string spreadsheetId,
            string range,
-           IList<IList<object>> values,
-           Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest)
+           Action<SpreadsheetsResource.ValuesResource.UpdateRequest> onRequest,
+           IList<IList<object>> values)
         {
             var body = new ValueRange()
             {
@@ -231,6 +200,22 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
             updateRequest.ValueInputOption = SpreadsheetsResource.ValuesResource.UpdateRequest.ValueInputOptionEnum.USERENTERED;
             onRequest?.Invoke(updateRequest);
             return updateRequest.Execute();
+        }
+
+        public static ClearValuesResponse ClearRange(this SheetsService service, string spreadsheetId, string range)
+        {
+            ClearValuesRequest requestBody = new ClearValuesRequest();
+            var request = service.Spreadsheets.Values.Clear(requestBody, spreadsheetId, range);
+            return request.Execute();
+        }
+
+        public static ValueRange ReadRange(this SheetsService service, string spreadsheetId, string range, Action<SpreadsheetsResource.ValuesResource.GetRequest> onGetRequest)
+        {
+            var request = service.Spreadsheets.Values.Get(spreadsheetId, range);
+            request.ValueRenderOption = SpreadsheetsResource.ValuesResource.GetRequest.ValueRenderOptionEnum.UNFORMATTEDVALUE;
+            request.DateTimeRenderOption = SpreadsheetsResource.ValuesResource.GetRequest.DateTimeRenderOptionEnum.FORMATTEDSTRING;
+            onGetRequest?.Invoke(request);             
+            return request.Execute();
         }
         #endregion
 

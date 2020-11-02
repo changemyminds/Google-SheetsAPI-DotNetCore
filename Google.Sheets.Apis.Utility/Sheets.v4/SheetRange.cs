@@ -4,18 +4,18 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
 {
     public class SheetRange
     {
-        public string WorkSheetName { get; set; }
+        public string SheetName { get; set; }
 
-        public string CellRange { get; set; }
+        public string Range { get; set; }
 
         public SheetRange()
         {
         }
 
-        public SheetRange(string workSheetName, string cellRange)
+        public SheetRange(string sheetName, string range)
         {
-            WorkSheetName = workSheetName;
-            CellRange = cellRange;
+            SheetName = sheetName;
+            Range = range;
         }
 
         /// <summary>
@@ -23,9 +23,14 @@ namespace Google.Sheets.Apis.Utility.Sheets.v4
         /// </summary>
         public string ToRange()
         {
-            var separated = string.IsNullOrEmpty(CellRange) ? "" : "!";
-            var cellRange = CellRange + (CellRange.Any(char.IsDigit) ? "" : "1");
-            return WorkSheetName + separated + cellRange;
+            var separated = string.IsNullOrEmpty(Range) ? "" : "!";
+            var range = Range + (Range.Any(char.IsDigit) ? "" : "1");
+            return SheetName + separated + range;
+        }
+
+        public static string ToRange(string sheetName, string range)
+        {
+            return new SheetRange(sheetName, range).ToRange();
         }
     }
 }

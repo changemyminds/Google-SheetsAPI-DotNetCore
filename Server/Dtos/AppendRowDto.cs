@@ -5,12 +5,12 @@ using System.Threading.Tasks;
 
 namespace Server.Dtos
 {
-    public class CellRangesDto
+    public class AppendRowDto
     {
         public string Sheetname { get; set; }
 
-        public string Cellrange { get; set; }
+        public string Range { get; set; }
 
-        public IList<IList<object>> Values { get; set; }
+        public string[] Line { get; set; }
     }
 }

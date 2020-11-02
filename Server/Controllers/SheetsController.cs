@@ -20,7 +20,7 @@ namespace Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public IActionResult Exist(string sheetname)
         {
-            return CheckWorkSheetExist(sheetname, () => Ok(sheetname));
+            return CheckSheetExist(sheetname, () => Ok(sheetname));
         }
 
         [HttpPost("create")]
@@ -28,7 +28,7 @@ namespace Server.Controllers
         [ProducesResponseType(StatusCodes.Status201Created)]
         public IActionResult Create(string sheetname)
         {
-            if (IsWorkSheetExist(sheetname))
+            if (IsSheetExist(sheetname))
             {
                 throw new RESTfulException(HttpStatusCode.BadRequest, $"The sheet {sheetname} is exist");
             }
@@ -42,7 +42,7 @@ namespace Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Delete(string sheetname)
         {
-            return CheckWorkSheetExist(sheetname, () =>
+            return CheckSheetExist(sheetname, () =>
             {
                 SheetsService.DeleteSheet(GoogleSheetsApi.SpreadSheetId, sheetname);
                 return Ok();
@@ -54,7 +54,7 @@ namespace Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         public IActionResult Update(string sheetname, string newsheetname)
         {
-            return CheckWorkSheetExist(sheetname, () =>
+            return CheckSheetExist(sheetname, () =>
             {
                 SheetsService.UpdateSheetTitle(GoogleSheetsApi.SpreadSheetId, sheetname, newsheetname);
                 return Ok();

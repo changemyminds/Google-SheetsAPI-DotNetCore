@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Server.Dtos
 {
-    public class CellRangeDeleteDto
+    public class AppendRangeEmptyDto
     {
         /// <summary>
         /// 工作表名稱
@@ -18,13 +18,8 @@ namespace Server.Dtos
         public bool IsColumn { get; set; }
 
         /// <summary>
-        /// 從哪一個位置開始插入
-        /// </summary>
-        public int StartIndex { get; set; }
-
-        /// <summary>
         /// 從哪一個位置結束插入
         /// </summary>
-        public int EndIndex { get; set; }
+        public int Length { get; set; }
     }
 }

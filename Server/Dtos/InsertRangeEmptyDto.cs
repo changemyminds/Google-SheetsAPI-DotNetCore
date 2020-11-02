@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Server.Dtos
+﻿namespace Server.Dtos
 {
-    public class CellRangeEmptyDto
+    public class InsertRangeEmptyDto
     {
         /// <summary>
         /// 工作表名稱
@@ -30,6 +25,6 @@ namespace Server.Dtos
         /// <summary>
         /// 繼承插入格的欄位屬性，如果為第一列，獲第一行(A)時，此數值必須為false，因為沒有繼承更早之前的欄位
         /// </summary>
-        public bool InheritFromBefore { get; set;}
+        public bool InheritFromBefore { get; set; }
     }
 }
