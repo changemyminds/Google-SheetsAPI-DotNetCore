@@ -2,7 +2,6 @@
 using Google.Apis.Sheets.v4.Data;
 using Google.Sheets.Apis.Utility.Sheets.v4;
 using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json.Linq;
 using Server.Dtos;
 using System.Collections.Generic;
 using System.Linq;
@@ -45,7 +44,7 @@ namespace Server.Controllers
             });
         }
         #endregion
-         
+
         #region --- Append Range ---
         [HttpPost("column")]
         public IActionResult AppendColumnLine(AppendColumnDto column)
@@ -145,14 +144,14 @@ namespace Server.Controllers
         public IActionResult DeleteColumnLine(DeleteRangeDto range)
         {
             range.IsColumn = true;
-            return Ok(BatchUpdateSpreadsheet(new DeleteRangeDto[] { range }));
+            return Ok(BatchUpdateSpreadsheet(new DeleteRangeDto[] { range })[0]);
         }
 
         [HttpDelete("row")]
         public IActionResult DeleteRowLine(DeleteRangeDto range)
         {
             range.IsColumn = false;
-            return Ok(BatchUpdateSpreadsheet(new DeleteRangeDto[] { range }));
+            return Ok(BatchUpdateSpreadsheet(new DeleteRangeDto[] { range })[0]);
         }
 
         [HttpDelete("range")]
@@ -208,12 +207,8 @@ namespace Server.Controllers
         }
         #endregion
 
-        #region --- Find Range ---
-        // TODO Find Range
-        #endregion
-
-        #region --- Replace Range ---
-        // TODO Replace Range
+        #region --- Find Replace Range ---
+        // TODO Find Replace Range
         #endregion
 
         #region --- Insert Empty --
