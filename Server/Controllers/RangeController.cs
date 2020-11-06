@@ -77,7 +77,7 @@ namespace Server.Controllers
             });
         }
 
-        [HttpPost("range")]
+        [HttpPost]
         public IActionResult AppendRange(AppendRangeDto range)
         {
             return CheckSheetExist(range.Sheetname, () =>
@@ -124,7 +124,7 @@ namespace Server.Controllers
             });
         }
 
-        [HttpPut("range")]
+        [HttpPut]
         public IActionResult UpdateRange(AppendRangeDto range)
         {
             return CheckSheetExist(range.Sheetname, () =>
@@ -154,7 +154,7 @@ namespace Server.Controllers
             return Ok(BatchUpdateSpreadsheet(new DeleteRangeDto[] { range })[0]);
         }
 
-        [HttpDelete("range")]
+        [HttpDelete]
         public IActionResult DeleteRange(DeleteRangeDto[] ranges)
         {
             return Ok(BatchUpdateSpreadsheet(ranges));
@@ -211,22 +211,74 @@ namespace Server.Controllers
         // TODO Find Replace Range
         #endregion
 
+        #region --- Append Empty ---
+        [HttpPost("column/empty")]
+        public IActionResult AppendColumnEmpty(AppendRangeEmptyDto range)
+        {
+            range.IsColumn = true;
+            return Created(nameof(AppendColumnEmpty), BatchUpdateSpreadsheet(new AppendRangeEmptyDto[] { range })[0]);
+        }
+
+        [HttpPost("row/empty")]
+        public IActionResult AppendRowEmpty(AppendRangeEmptyDto range)
+        {
+            range.IsColumn = false;
+            return Created(nameof(AppendRowEmpty), BatchUpdateSpreadsheet(new AppendRangeEmptyDto[] { range })[0]);
+        }
+
+        [HttpPost("empty")]
+        public IActionResult AppendRangeEmpty(AppendRangeEmptyDto[] range)
+        {
+            return Created(nameof(AppendRangeEmpty), BatchUpdateSpreadsheet(range));
+        }
+
+        private IList<BatchUpdateSpreadsheetResponse> BatchUpdateSpreadsheet(AppendRangeEmptyDto[] ranges)
+        {
+            if (ranges is null)
+            {
+                throw new System.ArgumentNullException(nameof(ranges));
+            }
+
+            return ranges.Select(r =>
+            {
+                return CheckSheetExist(r.Sheetname, () =>
+                {
+                    var request = CreateAppendDimensionRequest(r);
+                    return SheetsService.BatchUpdateSpreadsheet(GoogleSheetsApi.SpreadSheetId, request);
+                });
+            }).ToList();
+        }
+
+        private Request CreateAppendDimensionRequest(AppendRangeEmptyDto range)
+        {
+            return new Request
+            {
+                AppendDimension = new AppendDimensionRequest
+                {
+                    Dimension = range.IsColumn ? "COLUMNS" : "ROWS",
+                    SheetId = GetSheetId(range.Sheetname),
+                    Length = range.Length
+                }
+            };
+        }
+        #endregion
+
         #region --- Insert Empty --
-        [HttpPost("insert/empty/column")]
+        [HttpPost("column/empty/insert")]
         public IActionResult InsertColumnEmpty(InsertRangeEmptyDto range)
         {
             range.IsColumn = true;
             return Created(nameof(InsertColumnEmpty), BatchUpdateSpreadsheet(new InsertRangeEmptyDto[] { range })[0]);
         }
 
-        [HttpPost("insert/empty/row")]
+        [HttpPost("row/empty/insert")]
         public IActionResult InsertRowEmpty(InsertRangeEmptyDto range)
         {
             range.IsColumn = false;
             return Created(nameof(InsertRowEmpty), BatchUpdateSpreadsheet(new InsertRangeEmptyDto[] { range })[0]);
         }
 
-        [HttpPost("insert/empty")]
+        [HttpPost("empty/insert")]
         public IActionResult InsertRangeEmpty(InsertRangeEmptyDto[] ranges)
         {
             return Created(nameof(InsertRangeEmpty), BatchUpdateSpreadsheet(ranges));
@@ -268,56 +320,6 @@ namespace Server.Controllers
         }
         #endregion
 
-        #region --- Append Empty ---
-        [HttpPost("append/empty/column")]
-        public IActionResult AppendColumnEmpty(AppendRangeEmptyDto range)
-        {
-            range.IsColumn = true;
-            return Created(nameof(AppendColumnEmpty), BatchUpdateSpreadsheet(new AppendRangeEmptyDto[] { range })[0]);
-        }
-
-        [HttpPost("append/empty/row")]
-        public IActionResult AppendRowEmpty(AppendRangeEmptyDto range)
-        {
-            range.IsColumn = false;
-            return Created(nameof(AppendRowEmpty), BatchUpdateSpreadsheet(new AppendRangeEmptyDto[] { range })[0]);
-        }
-
-        [HttpPost("append/empty")]
-        public IActionResult AppendRangeEmpty(AppendRangeEmptyDto[] range)
-        {
-            return Created(nameof(AppendRangeEmpty), BatchUpdateSpreadsheet(range));
-        }
-
-        private IList<BatchUpdateSpreadsheetResponse> BatchUpdateSpreadsheet(AppendRangeEmptyDto[] ranges)
-        {
-            if (ranges is null)
-            {
-                throw new System.ArgumentNullException(nameof(ranges));
-            }
-
-            return ranges.Select(r =>
-            {
-                return CheckSheetExist(r.Sheetname, () =>
-                {
-                    var request = CreateAppendDimensionRequest(r);
-                    return SheetsService.BatchUpdateSpreadsheet(GoogleSheetsApi.SpreadSheetId, request);
-                });
-            }).ToList();
-        }
-
-        private Request CreateAppendDimensionRequest(AppendRangeEmptyDto range)
-        {
-            return new Request
-            {
-                AppendDimension = new AppendDimensionRequest
-                {
-                    Dimension = range.IsColumn ? "COLUMNS" : "ROWS",
-                    SheetId = GetSheetId(range.Sheetname),
-                    Length = range.Length
-                }
-            };
-        }
-        #endregion
+      
     }
 }
